@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Apartments</title>
+</head>
+<body>
+    <h1>Filter Apartments</h1>
+
+    <!-- Форма с выпадающими списками для фильтрации -->
+    <form method="GET" action="/">
+        <label for="district">District:</label>
+        <select name="district" id="district">
+            <option value="">All Districts</option>
+            {% for district in districts %}
+                <option value="{{ district }}">{{ district }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="area">Area:</label>
+        <select name="area" id="area">
+            <option value="">All Areas</option>
+            {% for area in areas %}
+                <option value="{{ area }}">{{ area }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="house_address">House Address:</label>
+        <select name="house_address" id="house_address">
+            <option value="">All House Addresses</option>
+            {% for house_address in house_addresses %}
+                <option value="{{ house_address }}">{{ house_address }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Таблица с данными квартир -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>District</th>
+                <th>Area</th>
+                <th>House Address</th>
+                <th>Apartment Number</th>
+                <th>Floor</th>
+                <th>Room Count</th>
+                <th>Living Area</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apartment in new_apartments %}
+                <tr>
+                    <td>{{ apartment.new_apart_id }}</td>
+                    <td>{{ apartment.district }}</td>
+                    <td>{{ apartment.area }}</td>
+                    <td>{{ apartment.house_address }}</td>
+                    <td>{{ apartment.apart_number }}</td>
+                    <td>{{ apartment.floor }}</td>
+                    <td>{{ apartment.room_count }}</td>
+                    <td>{{ apartment.living_area }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

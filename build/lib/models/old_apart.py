@@ -12,7 +12,7 @@ class OldApart(Base):
     district = Column(String, nullable = False)
     area = Column(String, nullable = False)
     house_address = Column(String, nullable = False)
-    apart_number = Column(Integer, nullable=False)
+    apart_number = Column(String, nullable=False)
     room_count = Column(Integer, nullable=False)
     type_of_settlement = Column(String, nullable=False)
     full_living_area = Column(Numeric, nullable=False)
