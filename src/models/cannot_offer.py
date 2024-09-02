@@ -9,3 +9,7 @@ class CannotOffer(Base):
     old_apart_id = Column(ForeignKey(f'{schema}.old_apart.old_apart_id'))
     insert_date = Column(TIMESTAMP, nullable=False)
     status = Column(String, nullable=False, default='Подбор на расммотрении')
+
+    class from_attributes:
+        orm_mode = True
+    

@@ -41,7 +41,7 @@ class SNewApart(BaseModel):
     rank : int
     history_id : int
     
-    class Config:
+    class from_attributes:
         orm_mode = True
         
         

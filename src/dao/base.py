@@ -20,7 +20,7 @@ class BaseDAO:
             return result.mappings().all()
         
     @classmethod
-    async def create_user(cls, **data):
+    async def create(cls, **data):
         async with async_session_maker() as session:
             query = insert(cls.model).values(**data)
             await session.execute(query) 

@@ -21,3 +21,4 @@ class Settings():
 
 settings = Settings()
 settings.generate_database_url()
+HASH_TOCKEN = os.getenv('HASH_TOCKEN')

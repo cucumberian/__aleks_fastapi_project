@@ -9,3 +9,6 @@ class History(Base):
     old_house_addresses = Column(ARRAY(String))
     new_house_addresses = Column(ARRAY(String))
     status = Column(String, nullable=False)
+
+    class from_attributes:
+        orm_mode = True

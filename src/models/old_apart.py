@@ -27,4 +27,7 @@ class OldApart(Base):
     rank = Column(Integer, default=None)
     history_id = Column(Integer, default=None)
     kpu_num = Column(Integer, nullable=False)
+
+    class from_attributes:
+        orm_mode = True
     

@@ -9,8 +9,11 @@ class User(Base):
     user_id = Column(Integer, primary_key=True)
     email = Column(String, nullable = False)
     hashed_password = Column(String, nullable = False)
+
+    class from_attributes:
+        orm_mode = True
     
-class SUserRegister(BaseModel):
+class SUserAuth(BaseModel):
     email : EmailStr
     hashed_password : str 
     

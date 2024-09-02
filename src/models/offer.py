@@ -10,3 +10,6 @@ class Offer(Base):
     new_apart_id = Column(ForeignKey(f'{schema}.new_apart.new_apart_id'))
     status = Column(String, nullable=False, default='Подбор на расммотрении')
     insert_date = Column(TIMESTAMP, nullable=False)
+
+    class from_attributes:
+        orm_mode = True
