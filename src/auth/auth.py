@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 from pydantic import EmailStr
 from auth.dao import UserDAO
-from config import HASH_TOCKEN
+from config import HASH_TOCKEN, SYPHER_TYPE
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,7 +18,7 @@ def create_acces_token(data: dict) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     to_encode.update({'exp': expire})
     encode_jwt = jwt.encode(
-        to_encode, HASH_TOCKEN, algorithm='HS256'
+        to_encode, HASH_TOCKEN, algorithm=SYPHER_TYPE
     )
     return encode_jwt
 

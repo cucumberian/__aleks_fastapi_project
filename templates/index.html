@@ -1,70 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Apartments</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartment Listing</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: row;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #main-content {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    #filters {
+      width: 25%;
+      padding: 20px;
+      border-right: 3px solid #ccc;
+      overflow: hidden;
+      resize: horizontal;
+    }
+
+    #resultsTableContainer {
+      width: 75%;
+      padding: 20px;
+      display: none;
+    }
+
+    .table-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #resultsTable {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    th:hover {
+      cursor: col-resize;
+    }
+
+    #detailsPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background-color: white;
+      box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
+      transform: translateX(300px);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #detailsPanel.show {
+      transform: translateX(0);
+    }
+
+    #detailsContent {
+      padding: 20px;
+    }
+
+    #closeDetailsPanel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .filter-section {
+      margin-bottom: 20px;
+    }
+
+    .filter-title {
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #f4f4f4;
+      padding: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .filter-options {
+      margin-left: 20px;
+      display: none;
+      overflow: hidden;
+    }
+
+    .filter-options.show {
+      display: block;
+    }
+
+    .resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-    <h1>Filter Apartments</h1>
+  <div id="main-content">
+    <div id="filters">
+      <h1>Apartment Listing</h1>
 
-    <!-- Форма с выпадающими списками для фильтрации -->
-    <form method="GET" action="/">
-        <label for="district">District:</label>
-        <select name="district" id="district">
-            <option value="">All Districts</option>
-            {% for district in districts %}
-                <option value="{{ district }}">{{ district }}</option>
-            {% endfor %}
-        </select>
+      <div class="filter-section" id="districtFilter">
+        <div class="filter-title">Выберите округа:</div>
+        <div class="filter-options" id="districtOptions"></div>
+      </div>
 
-        <label for="area">Area:</label>
-        <select name="area" id="area">
-            <option value="">All Areas</option>
-            {% for area in areas %}
-                <option value="{{ area }}">{{ area }}</option>
-            {% endfor %}
-        </select>
+      <div class="filter-section" id="areaFilter">
+        <div class="filter-title">Выберите районы:</div>
+        <div class="filter-options" id="areaOptions"></div>
+      </div>
 
-        <label for="house_address">House Address:</label>
-        <select name="house_address" id="house_address">
-            <option value="">All House Addresses</option>
-            {% for house_address in house_addresses %}
-                <option value="{{ house_address }}">{{ house_address }}</option>
-            {% endfor %}
-        </select>
+      <div class="filter-section" id="houseAddressFilter">
+        <div class="filter-title">Выберите адреса:</div>
+        <div class="filter-options" id="houseAddressOptions"></div>
+      </div>
+    </div>
+    <div class="resizer"></div>
+    <div id="resultsTableContainer">
+      <h2>Результаты:</h2>
+      <div class="table-scroll">
+        <table id="resultsTable">
+          <thead>
+          <tr>
+            <th style="width: 50px;">№</th>
+            <th style="width: 150px;">Округ</th>
+            <th style="width: 200px;">Район</th>
+            <th>Адрес</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-        <button type="submit">Filter</button>
-    </form>
+  <div id="detailsPanel">
+    <span id="closeDetailsPanel">×</span>
+    <div id="detailsContent"></div>
+  </div>
 
-    <!-- Таблица с данными квартир -->
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>District</th>
-                <th>Area</th>
-                <th>House Address</th>
-                <th>Apartment Number</th>
-                <th>Floor</th>
-                <th>Room Count</th>
-                <th>Living Area</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for apartment in new_apartments %}
-                <tr>
-                    <td>{{ apartment.new_apart_id }}</td>
-                    <td>{{ apartment.district }}</td>
-                    <td>{{ apartment.area }}</td>
-                    <td>{{ apartment.house_address }}</td>
-                    <td>{{ apartment.apart_number }}</td>
-                    <td>{{ apartment.floor }}</td>
-                    <td>{{ apartment.room_count }}</td>
-                    <td>{{ apartment.living_area }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let currentPage = 1;
+      const rowsPerPage = 100;
+      let isLoading = false;
+      let showTable = false;
+
+      const districtOptions = document.getElementById('districtOptions');
+      const areaOptions = document.getElementById('areaOptions');
+      const houseAddressOptions = document.getElementById('houseAddressOptions');
+      const resultsTableContainer = document.getElementById('resultsTableContainer');
+      const resultsTable = document.getElementById('resultsTable').querySelector('tbody');
+      const detailsPanel = document.getElementById('detailsPanel');
+      const detailsContent = document.getElementById('detailsContent');
+      const closeDetailsPanel = document.getElementById('closeDetailsPanel');
+      const filters = document.getElementById('filters');
+      const resizer = document.querySelector('.resizer');
+      const mainContent = document.getElementById('main-content');
+      let isResizing = false;
+
+      resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isResizing) {
+          const containerWidth = mainContent.offsetWidth;
+          const mouseX = e.clientX - mainContent.getBoundingClientRect().left;
+
+          const newFiltersWidth = (mouseX / containerWidth) * 100;
+          filters.style.width = `${newFiltersWidth}%`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        isResizing = false;
+      });
+
+
+      async function fetchOptions(url, params = {}) {
+        const queryString = new URLSearchParams();
+        for (const key in params) {
+          if (Array.isArray(params[key])) {
+            params[key].forEach(value => queryString.append(key, value));
+          } else {
+            queryString.append(key, params[key]);
+          }
+        }
+        const response = await fetch(`${url}?${queryString.toString()}`);
+        return response.json();
+      }
+
+      function createCheckbox(label, value, onChange) {
+        const container = document.createElement('div');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = value;
+        checkbox.addEventListener('change', onChange);
+
+        const labelElement = document.createElement('label');
+        labelElement.textContent = label;
+
+        container.appendChild(checkbox);
+        container.appendChild(labelElement);
+        return container;
+      }
+
+      function populateFilter(filterId, options, onChange) {
+        const filterDiv = document.getElementById(filterId);
+        filterDiv.innerHTML = '';
+        options.forEach(option => {
+          const checkbox = createCheckbox(option, option, onChange);
+          filterDiv.appendChild(checkbox);
+        });
+      }
+
+      async function showDetails(apartmentId) {
+        const data = await fetchOptions(`/tables/results/${apartmentId}`);
+        detailsContent.innerHTML = `
+                <h2>Детали квартиры:</h2>
+                <p>ID: ${data.id}</p>
+                <p>Ранг: ${data.rank}</p>
+                <p>ID истории: ${data.history_id}</p>
+                <p>Округ: ${data.district}</p>
+                <p>Район: ${data.area}</p>
+                <p>Адрес: ${data.house_address}</p>
+                <!-- Добавьте другие поля по мере необходимости -->
+            `;
+        detailsPanel.classList.add('show');
+      }
+
+      closeDetailsPanel.addEventListener('click', () => {
+        detailsPanel.classList.remove('show');
+      });
+
+      async function updateResults(page = 1) {
+        isLoading = true;
+        currentPage = page;
+
+        const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked')).map(checkbox => checkbox.value);
+        const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
+        const selectedAddresses = Array.from(document.querySelectorAll('#houseAddressOptions input:checked')).map(checkbox => checkbox.value);
+
+        const params = {
+          page: currentPage,
+          rowsPerPage: rowsPerPage
+        };
+
+        if (selectedDistricts.length > 0) params.districts = selectedDistricts;
+        if (selectedAreas.length > 0) params.areas = selectedAreas;
+        if (selectedAddresses.length > 0) params.addresses = selectedAddresses;
+
+        if (params.areas && params.areas.length > 0) {
+          const data = await fetchOptions('/tables/results', params);
+          if (page === 1) {
+            resultsTable.innerHTML = '';
+          }
+          showTable = data.length > 0;
+          if (showTable) {
+            resultsTableContainer.style.display = 'block';
+          } else {
+            resultsTableContainer.style.display = 'none';
+          }
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                        <td>${row.apart_number}</td>
+                        <td>${row.district}</td>
+                        <td>${row.area}</td>
+                        <td>${row.house_address}</td>
+                        <!-- Остальные данные -->
+                    `;
+            tr.addEventListener('click', () => {
+              showDetails(row.id);
+            });
+            resultsTable.appendChild(tr);
+          });
+        } else {
+          showTable = false;
+          resultsTableContainer.style.display = 'none';
+        }
+        isLoading = false;
+      }
+
+      function loadDistricts() {
+        fetchOptions('/tables/districts').then(data => {
+          populateFilter('districtOptions', data, () => {
+            loadAreas();
+            updateResults();
+          });
+        });
+      }
+
+      function loadAreas() {
+        const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked')).map(checkbox => checkbox.value);
+        if (selectedDistricts.length > 0) {
+          fetchOptions('/tables/areas', {districts: selectedDistricts}).then(data => {
+            populateFilter('areaOptions', data, () => {
+              loadHouseAddresses();
+              updateResults();
+            });
+          });
+        } else {
+          populateFilter('areaOptions', [], () => {
+          });
+        }
+      }
+
+      function loadHouseAddresses() {
+        const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
+
+        if (selectedAreas.length > 0) {
+          fetchOptions('/tables/house_addresses', {areas: selectedAreas}).then(data => {
+            populateFilter('houseAddressOptions', data, () => {
+              updateResults();
+            });
+          });
+        } else {
+          populateFilter('houseAddressOptions', [], () => {
+          });
+        }
+      }
+
+      document.querySelectorAll('.filter-title').forEach(title => {
+        title.addEventListener('click', () => {
+          const optionsDiv = title.nextElementSibling;
+          optionsDiv.classList.toggle('show');
+        });
+      });
+
+      districtOptions.addEventListener('change', () => {
+        updateResults();
+      });
+
+      areaOptions.addEventListener('change', () => {
+        updateResults();
+      });
+
+      houseAddressOptions.addEventListener('change', () => {
+        updateResults();
+      });
+
+      loadDistricts();
+    });
+  </script>
 </body>
 </html>
