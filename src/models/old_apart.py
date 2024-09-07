@@ -1,17 +1,16 @@
-from database import Base, schema
+from db.database import Base, schema
 from sqlalchemy import Column, Integer, String, Numeric, TIMESTAMP, ARRAY
-from pydantic import BaseModel
-from datetime import datetime
+
 
 class OldApart(Base):
-    __tablename__ = 'old_apart'
-    __table_args__ = {'schema': schema}
-    
+    __tablename__ = "old_apart"
+    __table_args__ = {"schema": schema}
+
     old_apart_id = Column(Integer, primary_key=True)
     fio = Column(String, nullable=False)
-    district = Column(String, nullable = False)
-    area = Column(String, nullable = False)
-    house_address = Column(String, nullable = False)
+    district = Column(String, nullable=False)
+    area = Column(String, nullable=False)
+    house_address = Column(String, nullable=False)
     apart_number = Column(Integer, nullable=False)
     room_count = Column(Integer, nullable=False)
     type_of_settlement = Column(String, nullable=False)
@@ -30,4 +29,3 @@ class OldApart(Base):
 
     class from_attributes:
         orm_mode = True
-    
