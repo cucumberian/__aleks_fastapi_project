@@ -1,30 +1,26 @@
 from dotenv import load_dotenv
 import os
+
 # Загрузка переменных окружения из файла .env
 load_dotenv()
 
-class Settings():
-    DB_HOST = os.getenv('DB_HOST')
-    DB_PORT = os.getenv('DB_PORT')
-    DB_USER = os.getenv('DB_USER')
-    DB_PASS = os.getenv('DB_PASS')
-    DB_NAME = os.getenv('DB_NAME')
-    DB_SCHEMA = os.getenv('DB_SCHEMA')
-    DATABASE_URL: str = ""
 
-    @classmethod
-    def generate_database_url(cls):
-        # Генерация DATABASE_URL на основе параметров
-        cls.DATABASE_URL = (
-            f"postgresql+asyncpg://{cls.DB_USER}:{cls.DB_PASS}@{cls.DB_HOST}:{cls.DB_PORT}/{cls.DB_NAME}"
-        )
+class Settings:
+    # все обязательные переменные окружения
+    # имеет смысл считывать через os.environ[key]
+    #
+    # чтобы при отсутствии переменной окружения поднималось исключение KeyError
+    # и программа не работала
+    # через os.getenv(key) - при отсутствии переменной, возвращается None, 
+    # что затем усложняет поиск ошибок в программе
+    DB_HOST = os.environ["DB_HOST"]
+    DB_PORT = os.environ["DB_PORT"]
+    DB_USER = os.environ["DB_USER"]
+    DB_PASS = os.environ["DB_PASS"]
+    DB_NAME = os.environ["DB_NAME"]
+    DB_SCHEMA = os.environ["DB_SCHEMA"]
 
-settings = Settings()
-settings.generate_database_url()
-HASH_TOCKEN = os.getenv('HASH_TOCKEN')
-SYPHER_TYPE = os.getenv('SYPHER_TYPE')
+    DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-
-
-
-
+    HASH_TOKEN = os.environ["HASH_TOKEN"]
+    CIPHER_TYPE = os.environ["CIPHER_TYPE"]
