@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Query
 from sqlalchemy import select
 from models.new_apart import NewApart
 from database import async_session_maker, schema
@@ -8,7 +8,6 @@ from routers.tabels import router as table_router
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import Optional, List
-from fastapi import Query
 
 app = FastAPI()
 # Подключаем статическую папку
