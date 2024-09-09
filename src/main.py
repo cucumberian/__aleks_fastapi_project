@@ -14,7 +14,6 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="../templates")
 
-
 app.include_router(auth_router)
 app.include_router(table_router)
 
