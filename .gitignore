@@ -4,4 +4,4 @@
 __pycache__/
 .vscode
 .env
-ex.xlsx
+src/ex.xlsx
