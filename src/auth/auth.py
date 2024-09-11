@@ -5,6 +5,8 @@ from jose import jwt
 from pydantic import EmailStr
 from auth.dao import UserDAO
 from config import Settings
+from fastapi import HTTPException, status, Request, Depends
+from jose import JWTError, jwt
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,11 +30,49 @@ def create_access_token(data: dict[str, Any]) -> str:
     )
     return encode_jwt
 
-
 async def authenticate_user(email: EmailStr, password: str):
     user = await UserDAO.find_one_or_none(email=email)
     if not user:
-        return None
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if not verify_password(password, user.hashed_password):
-        return None
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return user
+
+def get_token(request: Request):
+    token = request.cookies.get('recommendation_token')
+    if not token:
+        raise HTTPException(status_code=401)
+    return token
+
+async def get_current_user(token: str = Depends(get_token)):
+    try:
+        payload = jwt.decode(
+            token,
+            Settings.HASH_TOKEN,
+            Settings.ALGORITHM,  # или ALGORITHM, если так указано в Settings
+        )
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+    expire: int = payload.get("exp")
+    if not expire or expire < int(datetime.now(timezone.utc).timestamp()):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+
+    user_id: str = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user ID")
+    
+    try:
+        # Преобразуем user_id в int перед запросом
+        user_id = int(user_id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user ID format")
+
+    user = await UserDAO.find_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    
     return user

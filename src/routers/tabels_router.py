@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Query, HTTPException, Path
+from fastapi import APIRouter, Query, HTTPException, Path, Depends
 from sqlalchemy import select
 from models.new_apart import NewApart
 from db.database import async_session_maker
 from typing import List, Optional
+from auth.auth import get_current_user
 
-router = APIRouter(prefix="/tables", tags=["/tables"])
-
+router = APIRouter(prefix="/tables", tags=["/tables"], dependencies=[Depends(get_current_user)])
 
 @router.get("/districts")
 async def get_districts():

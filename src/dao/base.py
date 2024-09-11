@@ -3,7 +3,15 @@ from sqlalchemy import select, insert
 
 class BaseDAO:
     model = None 
-            
+
+    @classmethod
+    async def find_by_id(cls, model_id: int):
+        async with async_session_maker() as session:
+            # Динамически создаем фильтр по имени поля
+            query = select(cls.model).filter(getattr(cls.model, f"{cls.model.__name__.lower()}_id") == model_id)
+            result = await session.execute(query)
+            return result.scalar_one_or_none()
+                 
     @classmethod
     async def find_one_or_none(cls, **filter_by):
         async with async_session_maker() as session:

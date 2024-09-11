@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Cookie, Response
+from fastapi import APIRouter, HTTPException, status, Cookie, Response, Depends
 from models.user import SUserAuth
 from auth.dao import UserDAO
 from auth.auth import get_password_hash, verify_password, create_access_token, authenticate_user
-
+from datetime import datetime, timedelta, timezone
 router = APIRouter(
     prefix='/auth',
     tags=["Auth % Users"]
@@ -19,9 +19,14 @@ async def register_user(user_data: SUserAuth):
 @router.post('/login')
 async def login_user(response : Response , user_data: SUserAuth):
     existing_user = await authenticate_user(user_data.email, user_data.hashed_password)
-    print(existing_user)
     if  not existing_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    access_token = create_access_token({'sub' : existing_user.user_id})
-    response.set_cookie("recommendation_tocken", access_token)
-    return access_token
+    access_token = create_access_token({'sub' : str(existing_user.user_id)})
+    expire_time = datetime.now(timezone.utc) + timedelta(minutes=30)
+    response.set_cookie("recommendation_token", access_token, httponly=True, expires=expire_time)
+    return {"access_token": access_token}
+
+@router.post('/logout')
+async def logout_user(response: Response):
+    response.delete_cookie("recommendation_token")
+
