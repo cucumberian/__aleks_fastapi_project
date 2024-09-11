@@ -1,4 +1,4 @@
-from database import Base, schema
+from db.database import Base, schema
 from sqlalchemy import Column, Integer, String, Numeric, TIMESTAMP
 from pydantic import BaseModel
 from datetime import datetime

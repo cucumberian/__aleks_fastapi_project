@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from database import Base, schema
+from db.database import Base, schema
 from sqlalchemy import Column, Integer, String
 
 class User(Base):
