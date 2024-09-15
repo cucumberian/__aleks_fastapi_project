@@ -1,5 +1,6 @@
 from db.database import Base, schema
 from sqlalchemy import Column, Integer, String, Numeric, TIMESTAMP
+from sqlalchemy.orm import relationship
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional

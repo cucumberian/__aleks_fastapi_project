@@ -8,7 +8,6 @@ load_dotenv()
 class Settings:
     # все обязательные переменные окружения
     # имеет смысл считывать через os.environ[key]
-    #
     # чтобы при отсутствии переменной окружения поднималось исключение KeyError
     # и программа не работала
     # через os.getenv(key) - при отсутствии переменной, возвращается None, 
@@ -24,4 +23,4 @@ class Settings:
 
     HASH_TOKEN = os.environ["HASH_TOKEN"]
     ALGORITHM = os.environ["ALGORITHM"]
-print(Settings.ALGORITHM)
+    

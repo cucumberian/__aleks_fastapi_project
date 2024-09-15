@@ -1,6 +1,6 @@
 from db.database import Base, schema
 from sqlalchemy import Column, Integer, String, Numeric, TIMESTAMP, ARRAY
-
+from sqlalchemy.orm import relationship
 
 class OldApart(Base):
     __tablename__ = "old_apart"

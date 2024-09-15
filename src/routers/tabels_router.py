@@ -8,7 +8,7 @@ from auth.auth import get_current_user
 router = APIRouter(prefix="/tables", tags=["/tables"], dependencies=[Depends(get_current_user)])
 
 @router.get("/districts")
-async def get_districts():
+async def get_districts(user = Depends(get_current_user)):
     async with async_session_maker() as session:
         result = await session.execute(select(NewApart.district).distinct())
         districts = result.scalars().all()
@@ -66,7 +66,7 @@ async def get_apartments(
         apartments = (
             (
                 await session.execute(
-                    query.offset((page - 1) * rows_per_page).limit(
+                    query.offset((page + 1) * rows_per_page).limit(
                         rows_per_page
                     )
                 )
@@ -74,6 +74,7 @@ async def get_apartments(
             .scalars()
             .all()
         )
+        print(len(apartments))
         return apartments
 
 
@@ -91,3 +92,5 @@ async def get_apartment_by_id(
             return apartment
         else:
             raise HTTPException(status_code=404, detail="Apartment not found")
+        
+

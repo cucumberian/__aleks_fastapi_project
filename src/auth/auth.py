@@ -76,3 +76,11 @@ async def get_current_user(token: str = Depends(get_token)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     
     return user
+
+async def get_current_admin_user(current_user: UserDAO = Depends(get_current_user)):
+    if current_user.role_id == 1:
+        return current_user
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+    
+    

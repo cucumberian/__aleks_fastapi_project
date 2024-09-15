@@ -20,11 +20,10 @@ class BaseDAO:
             return result.scalar_one_or_none()
     
     @classmethod
-    async def get_apart_info(cls):
+    async def get_info(cls):
         async with async_session_maker() as session:
             query = select(cls.model).limit(100)
             result = await session.execute(query)
-            print(result)
             return result.mappings().all()
         
     @classmethod
@@ -33,3 +32,4 @@ class BaseDAO:
             query = insert(cls.model).values(**data)
             await session.execute(query) 
             await session.commit()
+            

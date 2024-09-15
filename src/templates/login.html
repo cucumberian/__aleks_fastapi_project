@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            opacity: 0.8;
+        }
+
+        .bottom-text {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Вход</h2>
+        <form id="loginForm">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Введите email" required>
+            </div>
+            <div>
+                <label for="hashed_password">Пароль:</label>
+                <input type="password" id="hashed_password" name="hashed_password" placeholder="Введите пароль" required>
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+        <div class="bottom-text">
+            Еще нет аккаунта? <a href="/auth/register">Зарегистрируйтесь</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+
+            const formData = new FormData(loginForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    window.location.href = '/'; 
+                } else {
+                    const errorData = await response.json();
+                    console.error('Login error:', errorData);
+                    alert('Ошибка входа. Проверьте email и пароль.'); 
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('Ошибка сети. Попробуйте позже.');
+            }
+        });
+    </script>
+</body>
+</html>
