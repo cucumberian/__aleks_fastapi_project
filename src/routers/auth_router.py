@@ -31,8 +31,9 @@ async def login_user(response : Response , user_data: SUserAuth):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     access_token = create_access_token({'sub' : str(existing_user.user_id)})
     expire_time = datetime.now(timezone.utc) + timedelta(minutes=30)
-    response.set_cookie("recommendation_token", access_token, httponly=True, expires=expire_time)
-    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER) 
+    response.set_cookie("recommendation_token", access_token, httponly=True, expires=expire_time, path="/")
+    # Redirect to the root path ("/") after successful login
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post('/me')
 async def get_me(current_user: int = Depends(get_current_user)):
