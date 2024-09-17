@@ -1,124 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apartment Listing</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: row;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    #main-content {
-      display: flex;
-      flex: 1;
-      position: relative;
-    }
-
-    #filters {
-      width: 25%;
-      padding: 20px;
-      border-right: 3px solid #ccc;
-      overflow: hidden;
-      resize: horizontal;
-    }
-
-    #resultsTableContainer {
-      width: 75%;
-      padding: 20px;
-      display: none;
-    }
-
-    .table-scroll {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    #resultsTable {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-
-    th,
-    td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    th:hover {
-      cursor: col-resize;
-    }
-
-    #detailsPanel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 300px;
-      height: 100vh;
-      background-color: white;
-      box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
-      transform: translateX(300px);
-      transition: transform 0.3s ease-in-out;
-    }
-
-    #detailsPanel.show {
-      transform: translateX(0);
-    }
-
-    #detailsContent {
-      padding: 20px;
-    }
-
-    #closeDetailsPanel {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-    }
-
-    .filter-section {
-      margin-bottom: 20px;
-    }
-
-    .filter-title {
-      font-weight: bold;
-      cursor: pointer;
-      background-color: #f4f4f4;
-      padding: 5px;
-      border: 1px solid #ddd;
-    }
-
-    .filter-options {
-      margin-left: 20px;
-      display: none;
-      overflow: hidden;
-    }
-
-    .filter-options.show {
-      display: block;
-    }
-
-    .resizer {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 5px;
-      height: 100%;
-      cursor: ew-resize;
-      z-index: 1;
-    }
-  </style>
+  <!-- ... (CSS styles) ... -->
 </head>
 <body>
   <div id="main-content">
@@ -260,59 +143,26 @@
         detailsPanel.classList.remove('show');
       });
 
-      async function updateResults(page = 1) {
-        isLoading = true;
-        currentPage = page;
 
+      function updateResults() {
         const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked')).map(checkbox => checkbox.value);
         const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
         const selectedAddresses = Array.from(document.querySelectorAll('#houseAddressOptions input:checked')).map(checkbox => checkbox.value);
 
-        const params = {
-          page: currentPage,
-          rowsPerPage: rowsPerPage
-        };
+        const params = {};
 
-        if (selectedDistricts.length > 0) params.districts = selectedDistricts;
-        if (selectedAreas.length > 0) params.areas = selectedAreas;
-        if (selectedAddresses.length > 0) params.addresses = selectedAddresses;
+        if (selectedDistricts.length > 0) params.districts = selectedDistricts.join(',');
+        if (selectedAreas.length > 0) params.areas = selectedAreas.join(',');
+        if (selectedAddresses.length > 0) params.addresses = selectedAddresses.join(',');
 
-        if (params.areas && params.areas.length > 0) {
-          const data = await fetchOptions('/tables/results', params);
-          if (page === 1) {
-            resultsTable.innerHTML = '';
-          }
-          showTable = data.length > 0;
-          if (showTable) {
-            resultsTableContainer.style.display = 'block';
-          } else {
-            resultsTableContainer.style.display = 'none';
-          }
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                        <td>${row.apart_number}</td>
-                        <td>${row.district}</td>
-                        <td>${row.area}</td>
-                        <td>${row.house_address}</td>
-                        <!-- Остальные данные -->
-                    `;
-            tr.addEventListener('click', () => {
-              showDetails(row.id);
-            });
-            resultsTable.appendChild(tr);
-          });
-        } else {
-          showTable = false;
-          resultsTableContainer.style.display = 'none';
-        }
-        isLoading = false;
+        const queryString = new URLSearchParams(params).toString();
+
+        window.location.href = `?${queryString}`;
       }
 
       function loadDistricts() {
         fetchOptions('/tables/districts').then(data => {
           populateFilter('districtOptions', data, () => {
-            loadAreas();
             updateResults();
           });
         });
@@ -323,15 +173,14 @@
         if (selectedDistricts.length > 0) {
           fetchOptions('/tables/areas', {districts: selectedDistricts}).then(data => {
             populateFilter('areaOptions', data, () => {
-              loadHouseAddresses();
               updateResults();
             });
           });
         } else {
-          populateFilter('areaOptions', [], () => {
-          });
+          populateFilter('areaOptions', [], () => {});
         }
       }
+
 
       function loadHouseAddresses() {
         const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
@@ -343,8 +192,7 @@
             });
           });
         } else {
-          populateFilter('houseAddressOptions', [], () => {
-          });
+          populateFilter('houseAddressOptions', [], () => {});
         }
       }
 
@@ -368,6 +216,41 @@
       });
 
       loadDistricts();
+
+      // Загрузка результатов при загрузке страницы
+      const urlParams = new URLSearchParams(window.location.search);
+      const districts = urlParams.get('districts');
+      const areas = urlParams.get('areas');
+      const addresses = urlParams.get('addresses');
+
+      if (districts || areas || addresses) {
+        // Если есть параметры в URL, загружаем результаты
+        fetchOptions('/tables/results', {
+          districts: districts ? districts.split(',') : [],
+          areas: areas ? areas.split(',') : [],
+          addresses: addresses ? addresses.split(',') : []
+        }).then(data => {
+          if (data.length > 0) {
+            resultsTableContainer.style.display = 'block';
+            data.forEach(row => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                        <td>${row.apart_number}</td>
+                        <td>${row.district}</td>
+                        <td>${row.area}</td>
+                        <td>${row.house_address}</td>
+                        <!-- Остальные данные -->
+                    `;
+              tr.addEventListener('click', () => {
+                showDetails(row.id);
+              });
+              resultsTable.appendChild(tr);
+            });
+          }
+        });
+      }
+
+
     });
   </script>
 </body>

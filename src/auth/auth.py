@@ -7,6 +7,7 @@ from auth.dao import UserDAO
 from config import Settings
 from fastapi import HTTPException, status, Request, Depends
 from jose import JWTError, jwt
+from fastapi.responses import RedirectResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -52,10 +53,7 @@ async def get_current_user(token: str = Depends(get_token)):
             Settings.ALGORITHM,  # или ALGORITHM, если так указано в Settings
         )
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+        return RedirectResponse(url='/auth/login')
 
     expire: int = payload.get("exp")
     if not expire or expire < int(datetime.now(timezone.utc).timestamp()):
