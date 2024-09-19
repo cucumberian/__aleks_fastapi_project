@@ -5,3 +5,4 @@ __pycache__/
 .vscode
 .env
 src/ex.xlsx
+*.sql
