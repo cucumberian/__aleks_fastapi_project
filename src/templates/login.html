@@ -73,8 +73,8 @@
                 <input type="email" id="email" name="email" placeholder="Введите email" required>
             </div>
             <div>
-                <label for="hashed_password">Пароль:</label>
-                <input type="password" id="hashed_password" name="hashed_password" placeholder="Введите пароль" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" placeholder="Введите пароль" required>
             </div>
             <button type="submit">Войти</button>
         </form>
@@ -94,6 +94,7 @@
             formData.forEach((value, key) => {
                 data[key] = value;
             });
+            console.log(data);
 
             try {
                 const response = await fetch('/auth/login', {
@@ -102,6 +103,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
+                    // body: formData,
                 });
 
                 if (response.ok) {

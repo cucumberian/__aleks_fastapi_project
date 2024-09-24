@@ -22,3 +22,13 @@
     ```shell
     docker-compose up -d
     ```
+
+## Тесты pytest
+
+Перед запуском тестов из директории `./src` выполнить команду `export PYTHONPATH=$(pwd)`
+
+### Запуск тестов
+
+```sh
+pytest
+```
