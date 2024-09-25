@@ -73,7 +73,6 @@ async def login_user(
 
     access_token = create_user_token(user=existing_user)
     expire_time = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=30)
-    print(f"granted access_token: {access_token}")
     response.set_cookie(
         key="recommendation_token",
         value=access_token,

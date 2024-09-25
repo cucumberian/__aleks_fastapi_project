@@ -1,9 +1,7 @@
-import datetime
 from typing import Any
 from dao.user_dao import UserDao
 
 from schema.user_schema import UserSchemaApiCreate
-from schema.user_schema import UserSchemaDb
 from schema.user_schema import UserSchemaDbCreate
 from schema.user_schema import UserSchemaApi
 
