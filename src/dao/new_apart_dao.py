@@ -78,7 +78,6 @@ class NewApartDao(Dao):
         areas: list[Area] | None = None,
         addresses: list[HouseAddress] | None = None,
     ):
-        self.db_manager.async_engine.echo = True
         async with self.db_manager.session() as session:
             query = select(NewApart)
 

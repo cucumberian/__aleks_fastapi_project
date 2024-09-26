@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Path, Depends
+from fastapi import Body
 
 from schema.district_schema import District
 from schema.area_schema import Area
@@ -17,6 +18,7 @@ router = APIRouter(
 
 
 @router.get("/districts", response_model=list[str])
+@router.post("/districts", response_model=list[str])
 async def get_districts(
     new_apart_dao: NewApartDao = Depends(get_new_apart_dao),
 ):
@@ -25,8 +27,9 @@ async def get_districts(
 
 
 @router.get("/areas", response_model=list[str])
+@router.post("/areas", response_model=list[str])
 async def get_areas(
-    districts: list[str] | None = Query(None),
+    districts: list[str] | None = Body(default=None),
     new_apart_dao: NewApartDao = Depends(get_new_apart_dao),
 ):
     if districts is None:
@@ -38,8 +41,9 @@ async def get_areas(
 
 
 @router.get("/house_addresses", response_model=list[str])
+@router.post("/house_addresses", response_model=list[str])
 async def get_house_addresses(
-    areas: list[str] | None = Query(None),
+    areas: list[str] | None = Body(default=None),
     new_apart_dao: NewApartDao = Depends(get_new_apart_dao),
 ):
     if areas is None:
@@ -50,6 +54,30 @@ async def get_house_addresses(
             areas=areas_schema,
         )
     return [h.address for h in house_addresses]
+
+
+@router.post("/apartments")
+async def get_new_apartments(
+    page: int = Query(1, ge=1),  # Номер страницы (по умолчанию 1)
+    rows_per_page: int = Query(default=100, ge=1),
+    districts: list[str] | None = Body(default=None),
+    areas: list[str] | None = Body(default=None),
+    addresses: list[str] | None = Body(default=None),
+    new_apart_dao: NewApartDao = Depends(get_new_apart_dao),
+):
+    districts_schema = [District(name=d) for d in districts] if districts else None
+    areas_schema = [Area(name=a) for a in areas] if areas else None
+    addresses_schema = (
+        [HouseAddress(address=a) for a in addresses] if addresses else None
+    )
+    apartments = await new_apart_dao.get_apartments(
+        page=page,
+        rows_per_page=rows_per_page,
+        districts=districts_schema,
+        areas=areas_schema,
+        addresses=addresses_schema,
+    )
+    return apartments
 
 
 @router.get("/results")

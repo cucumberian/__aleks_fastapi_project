@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- ... (CSS styles) ... -->
 </head>
+
 <body>
   <div id="main-content">
     <div id="filters">
@@ -23,21 +25,27 @@
         <div class="filter-options" id="houseAddressOptions"></div>
       </div>
     </div>
+
     <div class="resizer"></div>
+
     <div id="resultsTableContainer">
       <h2>Результаты:</h2>
+
       <div class="table-scroll">
         <table id="resultsTable">
+
           <thead>
-          <tr>
-            <th style="width: 50px;">№</th>
-            <th style="width: 150px;">Округ</th>
-            <th style="width: 200px;">Район</th>
-            <th>Адрес</th>
-          </tr>
+            <tr>
+              <th style="width: 50px;">№</th>
+              <th style="width: 150px;">Округ</th>
+              <th style="width: 200px;">Район</th>
+              <th>Адрес</th>
+            </tr>
           </thead>
+
           <tbody>
           </tbody>
+
         </table>
       </div>
     </div>
@@ -54,6 +62,11 @@
       const rowsPerPage = 100;
       let isLoading = false;
       let showTable = false;
+
+
+      let selectedDistricts = JSON.parse(localStorage.getItem('selectedDistricts') || "[]");
+      let selectedAreas = JSON.parse(localStorage.getItem('selectedAreas') || "[]");
+      let selectedAddresses = JSON.parse(localStorage.getItem('selectedAddresses') || []);
 
       const districtOptions = document.getElementById('districtOptions');
       const areaOptions = document.getElementById('areaOptions');
@@ -86,8 +99,9 @@
         isResizing = false;
       });
 
-
+      // загрузка json с url и с query строкой из params
       async function fetchOptions(url, params = {}) {
+        console.log(`fetchOptions run, params =`, params)
         const queryString = new URLSearchParams();
         for (const key in params) {
           if (Array.isArray(params[key])) {
@@ -97,7 +111,7 @@
           }
         }
         const response = await fetch(`${url}?${queryString.toString()}`);
-        return response.json();
+        return await response.json();
       }
 
       function createCheckbox(label, value, onChange) {
@@ -115,6 +129,7 @@
         return container;
       }
 
+      // функция для добавления чекбоксов в элемент с filterId
       function populateFilter(filterId, options, onChange) {
         const filterDiv = document.getElementById(filterId);
         filterDiv.innerHTML = '';
@@ -124,8 +139,10 @@
         });
       }
 
+      // загрузка данных по квартире и вывод их
       async function showDetails(apartmentId) {
         const data = await fetchOptions(`/tables/results/${apartmentId}`);
+        console.log(`showDetail data =`, data);
         detailsContent.innerHTML = `
                 <h2>Детали квартиры:</h2>
                 <p>ID: ${data.id}</p>
@@ -143,57 +160,53 @@
         detailsPanel.classList.remove('show');
       });
 
-
+      // получение selectedDistricts, selectedAreas, selectedAddresses из чекбоксов в localStorage
       function updateResults() {
-        const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked')).map(checkbox => checkbox.value);
-        const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
-        const selectedAddresses = Array.from(document.querySelectorAll('#houseAddressOptions input:checked')).map(checkbox => checkbox.value);
+        const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked'))
+          .map(checkbox => checkbox.value);
+        const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked'))
+          .map(checkbox => checkbox.value);
+        const selectedAddresses = Array.from(document.querySelectorAll('#houseAddressOptions input:checked'))
+          .map(checkbox => checkbox.value);
 
-        const params = {};
+        localStorage.setItem('selectedDistricts', JSON.stringify(selectedDistricts));
+        localStorage.setItem('selectedAreas', JSON.stringify(selectedAreas));
+        localStorage.setItem('selectedAddresses', JSON.stringify(selectedAddresses));
 
-        if (selectedDistricts.length > 0) params.districts = selectedDistricts.join(',');
-        if (selectedAreas.length > 0) params.areas = selectedAreas.join(',');
-        if (selectedAddresses.length > 0) params.addresses = selectedAddresses.join(',');
-
-        const queryString = new URLSearchParams(params).toString();
-
-        window.location.href = `?${queryString}`;
+        // const params = {};
+        // if (selectedDistricts.length > 0) params.districts = selectedDistricts.join(',');
+        // if (selectedAreas.length > 0) params.areas = selectedAreas.join(',');
+        // if (selectedAddresses.length > 0) params.addresses = selectedAddresses.join(',');
+        // const queryString = new URLSearchParams(params).toString();
+        // window.location.href = `?${queryString}`;
       }
 
+
+      // функция для запроса и получения json из ответа
+      async function fetchJson(url, body_content, json_function) {
+        fetch(url, {
+          method: "POST",
+          body: JSON.stringify(body_content),
+          headers: { "content-Type": "application/json", },
+        })
+          .then(response => response.json())
+          .then(json => {
+            json_function(json);
+          })
+          .catch(err => {
+            console.log(`error during fetch: `, err);
+          });
+      }
+
+
+      // получение списка районов
       function loadDistricts() {
-        fetchOptions('/tables/districts').then(data => {
-          populateFilter('districtOptions', data, () => {
-            updateResults();
-          });
+        fetchJson("/tables/districts", null, (json) => {
+          const districts = json;
+          console.log(`loadDistricts, districts = `, districts);
+          populateFilter('districtOptions', districts, () => {});
+          localStorage.setItem('districts', JSON.stringify(districts));
         });
-      }
-
-      function loadAreas() {
-        const selectedDistricts = Array.from(document.querySelectorAll('#districtOptions input:checked')).map(checkbox => checkbox.value);
-        if (selectedDistricts.length > 0) {
-          fetchOptions('/tables/areas', {districts: selectedDistricts}).then(data => {
-            populateFilter('areaOptions', data, () => {
-              updateResults();
-            });
-          });
-        } else {
-          populateFilter('areaOptions', [], () => {});
-        }
-      }
-
-
-      function loadHouseAddresses() {
-        const selectedAreas = Array.from(document.querySelectorAll('#areaOptions input:checked')).map(checkbox => checkbox.value);
-
-        if (selectedAreas.length > 0) {
-          fetchOptions('/tables/house_addresses', {areas: selectedAreas}).then(data => {
-            populateFilter('houseAddressOptions', data, () => {
-              updateResults();
-            });
-          });
-        } else {
-          populateFilter('houseAddressOptions', [], () => {});
-        }
       }
 
       document.querySelectorAll('.filter-title').forEach(title => {
@@ -203,17 +216,57 @@
         });
       });
 
-      districtOptions.addEventListener('change', () => {
-        updateResults();
-      });
 
-      areaOptions.addEventListener('change', () => {
-        updateResults();
-      });
+      async function fetchAreas(districts) {
+        await fetchJson("tables/areas", districts, (json) => {
+          let areas = json;
+          console.log('fetchAreas, areas =', areas);
+          populateFilter('areaOptions', areas, () => {});
+        });
+      };
 
-      houseAddressOptions.addEventListener('change', () => {
+      async function fetchHouseAddresses(areas) {        
+        await fetchJson("/tables/house_addresses", areas, (json) => {
+          let houseAddresses = json;
+          console.log('fetchHouseAddresses, houseAddresses =', houseAddresses);
+          populateFilter('houseAddressOptions', houseAddresses, () => {});
+        });
+      }
+
+      async function fetchApartments(districts, areas, addresses) {
+        const body_content = {districts, areas, addresses};
+        await fetchJson("/tables/apartments", body_content, (json) => {
+          const apartments = json;
+          console.log(`fetchApartments, apartments =`, apartments);
+        });
+      }
+
+
+      // функция срабатываемая при изменении чекбокса с округами districts
+      async function districtFilterChangeHandler() {
         updateResults();
-      });
+        const selectedDistricts = JSON.parse(localStorage.getItem('selectedDistricts'));
+        const areas = await fetchAreas(selectedDistricts);
+      }
+
+      // функция, срабатывемая при изменении чекбокса с районами area
+      async function areaFilterChangeHandler() {
+        updateResults();
+        const selectedAreas = JSON.parse(localStorage.getItem("selectedAreas"));
+        const addresses = await fetchHouseAddresses(selectedAreas);
+      }
+
+      // функция, срабатываемая при изменении чекбокса с адресом houseAddress
+      async function houseAddressFilterChangeHandler() {
+        updateResults();
+        const selectedHouseAddresses = JSON.parse(localStorage.getItem('selectedAddresses'));
+        const apartments = fetchApartments(districts, areas, addresses);
+        populateFilter
+      }
+
+      districtOptions.addEventListener('change', districtFilterChangeHandler);
+      areaOptions.addEventListener('change', areaFilterChangeHandler);
+      houseAddressOptions.addEventListener('change', houseAddressFilterChangeHandler);
 
       loadDistricts();
 
@@ -254,4 +307,5 @@
     });
   </script>
 </body>
+
 </html>

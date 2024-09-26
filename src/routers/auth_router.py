@@ -1,4 +1,3 @@
-from typing import Annotated
 import datetime
 
 from fastapi import APIRouter
