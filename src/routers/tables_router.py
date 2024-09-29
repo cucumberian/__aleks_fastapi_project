@@ -70,6 +70,7 @@ async def get_new_apartments(
     addresses_schema = (
         [HouseAddress(address=a) for a in addresses] if addresses else None
     )
+    # new_apart_dao.db_manager.async_engine.echo = True
     apartments = await new_apart_dao.get_apartments(
         page=page,
         rows_per_page=rows_per_page,
@@ -77,6 +78,7 @@ async def get_new_apartments(
         areas=areas_schema,
         addresses=addresses_schema,
     )
+    # new_apart_dao.db_manager.async_engine.echo = False
     return apartments
 
 

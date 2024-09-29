@@ -81,15 +81,23 @@ class NewApartDao(Dao):
         async with self.db_manager.session() as session:
             query = select(NewApart)
 
+            # это условие не будет нормально работать, т.к. тут И
+            # и нет ни одной квартиры, которая находилась бы одновременно в двух разных адресах
+            # а надо ИЛИ по разным адресам, которые делятся по своим area, которые делятся по своим disctricts
+            # нужно впиливать связи district -> area -> address -> apartment
+            # иначе чтобы это всё работало нужны уникальные названия адреcов в каждой area 
+            # и уникальные названия area в каждом district
             if districts:
                 district_set = {d.name for d in districts}
                 query = query.filter(NewApart.district.in_(district_set))
             if areas:
-                area_set = {a.name for a in areas}
-                query = query.filter(NewApart.area.in_(area_set))
+                areas_set = {a.name for a in areas}
+                query = query.filter(NewApart.area.in_(areas_set))
             if addresses:
                 address_set = {a.address for a in addresses}
                 query = query.filter(NewApart.house_address.in_(address_set))
+            # compiled_query = query.compile(compile_kwargs={"literal_binds": True})
+            # print("query: ", compiled_query)
             cursor = await session.execute(
                 query.offset((page - 1) * rows_per_page).limit(rows_per_page)
 
@@ -99,4 +107,5 @@ class NewApartDao(Dao):
                 NewApartSchema.model_validate(row, from_attributes=True)
                 for row in apartments_orm
             ]
+            # print(f"{apartments = }")
             return apartments
