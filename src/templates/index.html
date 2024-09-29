@@ -2,7 +2,121 @@
 <html lang="en">
 
 <head>
-  <!-- ... (CSS styles) ... -->
+  <style>
+    body {
+      display: flex;
+      flex-direction: row;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #main-content {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    #filters {
+      width: 25%;
+      padding: 20px;
+      border-right: 3px solid #ccc;
+      overflow: hidden;
+      resize: horizontal;
+    }
+
+    #resultsTableContainer {
+      width: 75%;
+      padding: 20px;
+      display: none;
+    }
+
+    .table-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #resultsTable {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    th:hover {
+      cursor: col-resize;
+    }
+
+    #detailsPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background-color: white;
+      box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
+      transform: translateX(300px);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #detailsPanel.show {
+      transform: translateX(0);
+    }
+
+    #detailsContent {
+      padding: 20px;
+    }
+
+    #closeDetailsPanel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .filter-section {
+      margin-bottom: 20px;
+    }
+
+    .filter-title {
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #f4f4f4;
+      padding: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .filter-options {
+      margin-left: 20px;
+      display: none;
+      overflow: hidden;
+    }
+
+    .filter-options.show {
+      display: block;
+    }
+
+    .resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 1;
+    }
+  </style>
 </head>
 
 <body>
